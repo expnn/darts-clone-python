@@ -1,5 +1,28 @@
 from libc.stdlib cimport malloc, free
 
+cdef class TraverseState:
+    def __cinit__(self, size_t node_pos=0, size_t key_pos=0, int result=0):
+        self.key_pos_ = key_pos
+        self.node_pos_ = node_pos
+        self.result_ = result
+
+    @property
+    def key_pos(self):
+        return self.key_pos_
+
+    @property
+    def node_pos(self):
+        return self.node_pos_
+
+    def get_result(self):
+        return self.result_
+
+    def __str__(self):
+        return f"TraverseState(node_pos={self.node_pos_}, key_pos={self.key_pos_}, result={self.result_})"
+
+    def __repr__(self):
+        return f"TraverseState({self.node_pos_}, {self.key_pos_}, {self.result_})"
+
 
 cdef class DoubleArray:
     def __cinit__(self):
@@ -107,20 +130,19 @@ cdef class DoubleArray:
         else:
             return self.__common_prefix_search(_key, max_num_results, length, node_pos)
 
-    def traverse(self, key,
-                 size_t node_pos,
-                 size_t key_pos,
-                 size_t length = 0):
+    def traverse(self, TraverseState state,
+                 key, size_t length = 0):
         cdef const char *_key = key
         cdef int result
         with nogil:
-            result = self.wrapped.traverse(_key, node_pos, key_pos, length)
+            result = self.wrapped.traverse(_key, state.node_pos_, state.key_pos_, length)
+            state.result_ = result
         return result
 
     def __exact_match_search(self, const char *key,
                              size_t length = 0,
                              size_t node_pos = 0):
-        cdef int result
+        cdef int result = -1
         with nogil:
             self.wrapped.exact_match_search(key, result, length, node_pos)
         return result

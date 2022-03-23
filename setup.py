@@ -1,7 +1,7 @@
 from setuptools import setup, Extension
 
 NAME = 'dartsclone'
-VERSION = '0.9.0'
+VERSION = '0.9.1'
 EXTENSIONS = [
     Extension(
         '{0}._{0}'.format(NAME),
@@ -42,7 +42,6 @@ if __name__ == '__main__':
         classifiers=[
             'License :: OSI Approved :: Apache Software License',
             'Programming Language :: Cython',
-            'Programming Language :: Python :: 2',
             'Programming Language :: Python :: 3',
             'Topic :: Text Processing :: Linguistic'
         ],
