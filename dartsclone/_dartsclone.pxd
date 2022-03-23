@@ -55,6 +55,6 @@ cdef class DoubleArray:
     cdef CppDoubleArray *wrapped
 
 cdef class TraverseState:
-    cdef size_t node_pos_
-    cdef size_t key_pos_
-    cdef int result_
+    cdef public size_t node_pos
+    cdef public size_t key_pos
+    cdef public int result

@@ -1,27 +1,31 @@
 from libc.stdlib cimport malloc, free
 
 cdef class TraverseState:
-    def __cinit__(self, size_t node_pos=0, size_t key_pos=0, int result=0):
-        self.key_pos_ = key_pos
-        self.node_pos_ = node_pos
-        self.result_ = result
-
-    @property
-    def key_pos(self):
-        return self.key_pos_
-
-    @property
-    def node_pos(self):
-        return self.node_pos_
-
-    def get_result(self):
-        return self.result_
+    def __init__(self, size_t node_pos=0, size_t key_pos=0, int result=0):
+        self.key_pos = key_pos
+        self.node_pos = node_pos
+        self.result = result
 
     def __str__(self):
-        return f"TraverseState(node_pos={self.node_pos_}, key_pos={self.key_pos_}, result={self.result_})"
+        return f"TraverseState(node_pos={self.node_pos}, key_pos={self.key_pos}, result={self.result})"
 
     def __repr__(self):
-        return f"TraverseState({self.node_pos_}, {self.key_pos_}, {self.result_})"
+        return f"TraverseState({self.node_pos}, {self.key_pos}, {self.result})"
+
+    def __copy__(self):
+        return TraverseState(self.node_pos, self.key_pos, self.result)
+
+    def __deepcopy__(self, memodict=None):
+        return TraverseState(self.node_pos, self.key_pos, self.result)
+
+    def copy_from(self, TraverseState other):
+        self.key_pos = other.key_pos
+        self.node_pos = other.node_pos
+        self.result = other.result
+
+    def set_node_from(self, TraverseState other):
+        self.node_pos = other.node_pos
+        self.key_pos = 0
 
 
 cdef class DoubleArray:
@@ -135,8 +139,8 @@ cdef class DoubleArray:
         cdef const char *_key = key
         cdef int result
         with nogil:
-            result = self.wrapped.traverse(_key, state.node_pos_, state.key_pos_, length)
-            state.result_ = result
+            result = self.wrapped.traverse(_key, state.node_pos, state.key_pos, length)
+            state.result = result
         return result
 
     def __exact_match_search(self, const char *key,
