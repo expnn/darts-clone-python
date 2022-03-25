@@ -1,4 +1,7 @@
 from libc.stdlib cimport malloc, free
+import numpy as np
+cimport numpy as np
+
 
 cdef class TraverseState:
     def __init__(self, size_t node_pos=0, size_t key_pos=0, int result=0):
@@ -29,8 +32,12 @@ cdef class TraverseState:
 
 
 cdef class DoubleArray:
+    def __init__(self):
+        self.__array = None
+
     def __cinit__(self):
         self.wrapped = new CppDoubleArray()
+        assert sizeof(unsigned int) == self.unit_size(), "Unit size should be sizeof(unsigned int)"
 
     def __dealloc__(self):
         del self.wrapped
@@ -41,13 +48,25 @@ cdef class DoubleArray:
     def __setstate__(self, array):
         self.set_array(array)
 
-    def array(self):
-        cdef size_t total_size = self.wrapped.total_size()
-        cdef char[:] data = <char[:total_size]>self.wrapped.array()
-        return bytes(data)
+    # def array(self):
+    #     cdef size_t total_size = self.wrapped.total_size()
+    #     cdef char[:] data = <char[:total_size]>self.wrapped.array()
+    #     return bytes(data)
+    #
+    # def set_array(self, const unsigned char[::1] array, size_t size=0):
+    #     self.wrapped.set_array(<const void*> &array[0], size)
 
-    def set_array(self, const unsigned char[::1] array, size_t size=0):
-        self.wrapped.set_array(<const void*> &array[0], size)
+    def array(self):
+        cdef size_t size = self.wrapped.size()
+        cdef unsigned int[:] data = <unsigned int[:size]>self.wrapped.array()
+        return np.asarray(data)
+
+    def set_array(self, unsigned int[::1] array, size_t size=0):
+        if size <= 0:
+            size = len(array)
+
+        self.__array = array  # 避免被释放导致失效.
+        self.wrapped.set_array(<const void*>&array[0], size)
 
     def clear(self):
         self.wrapped.clear()

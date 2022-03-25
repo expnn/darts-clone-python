@@ -1,7 +1,8 @@
 from setuptools import setup, Extension
+import numpy
 
 NAME = 'dartsclone'
-VERSION = '0.9.1'
+VERSION = '0.9.2'
 EXTENSIONS = [
     Extension(
         '{0}._{0}'.format(NAME),
@@ -10,7 +11,7 @@ EXTENSIONS = [
             '{0}/_{0}.pyx'.format(NAME),
             'csrc/src/darts.cc'
         ],
-        include_dirs=['./csrc/include']
+        include_dirs=['./csrc/include', numpy.get_include()]
     )
 ]
 
